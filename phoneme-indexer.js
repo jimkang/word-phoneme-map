@@ -1,7 +1,8 @@
 var queue = require('queue-async');
-var basicSubleveler = require('../basic-subleveler');
+var basicSubleveler = require('basic-subleveler');
 var phonemeTypes = require('phoneme-types');
 var callNextTick = require('call-next-tick');
+var formatter = require('./phoneme-formatter');
 
 function createPhonemeIndexer(opts) {
    var db = basicSubleveler.setUpSubleveledDB({
@@ -12,8 +13,10 @@ function createPhonemeIndexer(opts) {
     }
   });
 
-  function index(word, phonemeString, done) {
-    phonemeString = phonemeTypes.stripStressor(phonemeString);
+  function index(word, phonemes, done) {
+    var phonemeString = phonemeTypes.stripStressor(phonemes);
+    phonemeString = formatter.sequenceStringToDbString(phonemeString);
+
     if (stringIsEmpty(word)) {
       callNextTick(done, new Error('Missing word.'));
       return;

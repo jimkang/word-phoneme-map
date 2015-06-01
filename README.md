@@ -39,10 +39,7 @@ From then on, you can use the map like this:
       dbLocation: __dirname + '/where-you-want-it-/a-word-phoneme.db'
     });
 
-    wordPhonemeMap.wordsForPhonemeSequence(
-      ['AE', 'B', 'ER', 'EY', 'SH', 'AH', 'N'],
-      showWords
-    );
+    wordPhonemeMap.wordsForPhonemeSequence(['AA', 'R', 'K'], showWords);
 
     function showWords(error, words) {
       if (error) {
@@ -56,7 +53,27 @@ From then on, you can use the map like this:
 Output:
 
     [
-      'ABERRATION'
+      'ARC',
+      'ARK'
+    ]
+
+To do lookups in the opposite direction, do this:
+
+    wordPhonemeMap.phonemesForWord('ARK', showPhonemes);
+
+    function showPhonemes(error, phonemeSequences) {
+      if (error) {
+        console.log(error);
+      }
+      else {
+        console.log(phonemeSequences);
+      }
+    }
+
+Output:
+
+    [
+      ['AA', 'R', 'K']
     ]
 
 Tests

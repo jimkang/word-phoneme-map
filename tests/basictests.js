@@ -17,11 +17,11 @@ test('Try map without db', function noDb(t) {
 });
 
 test('Create and use map', function typicalCase(t) {
-  t.plan(2);
+  t.plan(2 + 2);
 
   var indexOpts = {
     dbLocation: __dirname + '/test.db',
-    numberOfLinesToIndex: 300
+    numberOfLinesToIndex: 6000
   };
 
   rimraf.sync(indexOpts.dbLocation);
@@ -38,23 +38,12 @@ test('Create and use map', function typicalCase(t) {
     var wordPhonemeMap = createWordPhonemeMap({
       dbLocation: indexOpts.dbLocation
     });
-    // wordPhonemeMap.wordsFor
+    wordPhonemeMap.wordsForPhonemeSequence(['AA', 'R', 'K'], checkWords);
+
+    function checkWords(error, words) {
+      t.ok(!error, 'No error occured while looking for words.');
+      t.deepEqual(words, ['ARC', 'ARK']);
+    }
   }
 });
-
-// http://www.geedew.com/2012/10/24/remove-a-directory-that-is-not-empty-in-nodejs/
-function deleteFolderRecursive(path) {
-  if (fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function(file, index){
-      var curPath = path + "/" + file;
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      }
-      else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
-  }
-}
 

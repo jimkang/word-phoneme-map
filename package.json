@@ -27,6 +27,7 @@
   "dependencies": {
     "basic-subleveler": "^1.1.0",
     "call-next-tick": "^1.1.2",
+    "export-methods": "^1.1.0",
     "phoneme-types": "^1.2.2",
     "queue-async": "^1.0.7",
     "split": "^1.0.0"

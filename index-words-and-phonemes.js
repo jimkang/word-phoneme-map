@@ -49,8 +49,6 @@ function indexWordsAndPhonemes(opts, done) {
       return;
     }
 
-    debugger;
-
     var word = pieces[0];
     var phonemeString = pieces[1];
 
