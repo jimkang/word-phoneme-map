@@ -8,16 +8,56 @@ Installation
 
     npm install word-phoneme-map
 
-Some time before you use the map, you need to call `indexWordsAndPhonemes`. (TODO: Explain.)
-
 Usage
 -----
 
-TODO
+Sometime before you use the map, you need to call `setUpDatabase` to set up a database, like so:
 
-    var someFactory = require('word-phoneme-map');
-    var thing = someFactory();
-    thing.use();
+    var setUpDatabase = require('word-phoneme-map').setUpDatabase;
+    setUpDatabase(
+      {
+        dbLocation: __dirname + '/where-you-want-it/a-word-phoneme.db'
+      },
+      done
+    );
+
+    function done(error) {
+      if (error) {
+        console.log(error)
+      }
+      else {
+        console.log('Successfully set up database.');
+      }
+    }
+
+You only need to do this once.
+
+From then on, you can use the map like this:
+
+    var createWordPhonemeMap = require('word-phoneme-map').createWordPhonemeMap;
+    var wordPhonemeMap = createWordPhonemeMap({
+      dbLocation: __dirname + '/where-you-want-it-/a-word-phoneme.db'
+    });
+
+    wordPhonemeMap.wordsForPhonemeSequence(
+      ['AE', 'B', 'ER', 'EY', 'SH', 'AH', 'N'],
+      showWords
+    );
+
+    function showWords(error, words) {
+      if (error) {
+        console.log(error);
+      }
+      else {
+        console.log(words);
+      }
+    }
+
+Output:
+
+    [
+      'ABERRATION'
+    ]
 
 Tests
 -----

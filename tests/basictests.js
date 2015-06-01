@@ -21,7 +21,7 @@ test('Create and use map', function typicalCase(t) {
 
   var indexOpts = {
     dbLocation: __dirname + '/test.db',
-    numberOfLinesToIndex: 100
+    numberOfLinesToIndex: 300
   };
 
   rimraf.sync(indexOpts.dbLocation);
