@@ -19,16 +19,21 @@ test('Try map without db', function noDb(t) {
 test('Create and use map', function typicalCase(t) {
   var expectedWordsForSequences = [
     {
-      sequence: ['AA', 'R', 'K'],
+      sequences: [
+        ['AA', 'R', 'K']
+      ],
       words: ['ARC', 'ARK']
     },
     {
-      sequence: ['AE', 'B', 'N', 'AO', 'R', 'M', 'AH', 'L', 'IY'],
+      sequences: [
+        ['AE', 'B', 'N', 'AO', 'R', 'M', 'AH', 'L', 'IY']
+      ],
       words: ['ABNORMALLY']
     }
   ];
 
-  t.plan(2 + expectedWordsForSequences.length * 2);
+
+  t.plan(2 + expectedWordsForSequences.length * 4);
 
   var indexOpts = {
     dbLocation: __dirname + '/test.db',
@@ -53,13 +58,28 @@ test('Create and use map', function typicalCase(t) {
     expectedWordsForSequences.forEach(runWordsForSequenceTest);
 
     function runWordsForSequenceTest(pair) {
-      wordPhonemeMap.wordsForPhonemeSequence(pair.sequence, checkWords);
+      wordPhonemeMap.wordsForPhonemeSequence(pair.sequences[0], checkWords);
 
       function checkWords(error, words) {
         t.ok(!error, 'No error occured while looking for words.');
         t.deepEqual(words, pair.words, 'Expected words are returned.');
       }
     }
+
+    expectedWordsForSequences.forEach(runSequencesForWordsTest);
+
+    function runSequencesForWordsTest(pair) {
+      wordPhonemeMap.phonemeSequenceForWord(pair.words[0], checkSequences);
+
+      function checkSequences(error, sequences) {
+        t.ok(!error, 'No error occured while looking for sequence.');
+        t.deepEqual(
+          sequences, pair.sequences, 'Expected sequence is returned.'
+        );
+      }
+    }
   }
+
+  
 });
 

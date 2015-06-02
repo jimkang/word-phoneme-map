@@ -1,6 +1,5 @@
 var exportMethods = require('export-methods');
 var basicSubleveler = require('basic-subleveler');
-// var callNextTick = require('call-next-tick');
 
 function createWordPhonemeMap(opts) {
   if (!opts || !opts.dbLocation) {
@@ -21,7 +20,16 @@ function createWordPhonemeMap(opts) {
     basicSubleveler.readAllValuesFromSublevel(seqLevel, done);
   }
 
-  return exportMethods(wordsForPhonemeSequence);
+  function phonemeSequenceForWord(word, done) {
+    var wordLevel = db.words.sublevel(word);
+    basicSubleveler.readAllValuesFromSublevel(wordLevel, parseSequenceJSON);
+
+    function parseSequenceJSON(error, valueStrings) {
+      done(error, valueStrings.map(JSON.parse));
+    }
+  }
+
+  return exportMethods(wordsForPhonemeSequence, phonemeSequenceForWord);
 }
 
 module.exports = createWordPhonemeMap;
