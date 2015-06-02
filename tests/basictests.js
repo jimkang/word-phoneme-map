@@ -17,7 +17,18 @@ test('Try map without db', function noDb(t) {
 });
 
 test('Create and use map', function typicalCase(t) {
-  t.plan(2 + 2);
+  var expectedWordsForSequences = [
+    {
+      sequence: ['AA', 'R', 'K'],
+      words: ['ARC', 'ARK']
+    },
+    {
+      sequence: ['AE', 'B', 'N', 'AO', 'R', 'M', 'AH', 'L', 'IY'],
+      words: ['ABNORMALLY']
+    }
+  ];
+
+  t.plan(2 + expectedWordsForSequences.length * 2);
 
   var indexOpts = {
     dbLocation: __dirname + '/test.db',
@@ -38,11 +49,16 @@ test('Create and use map', function typicalCase(t) {
     var wordPhonemeMap = createWordPhonemeMap({
       dbLocation: indexOpts.dbLocation
     });
-    wordPhonemeMap.wordsForPhonemeSequence(['AA', 'R', 'K'], checkWords);
 
-    function checkWords(error, words) {
-      t.ok(!error, 'No error occured while looking for words.');
-      t.deepEqual(words, ['ARC', 'ARK']);
+    expectedWordsForSequences.forEach(runWordsForSequenceTest);
+
+    function runWordsForSequenceTest(pair) {
+      wordPhonemeMap.wordsForPhonemeSequence(pair.sequence, checkWords);
+
+      function checkWords(error, words) {
+        t.ok(!error, 'No error occured while looking for words.');
+        t.deepEqual(words, pair.words, 'Expected words are returned.');
+      }
     }
   }
 });
