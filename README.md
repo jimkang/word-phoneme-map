@@ -59,7 +59,7 @@ Output:
 
 To do lookups in the opposite direction, do this:
 
-    wordPhonemeMap.phonemesForWord('ARK', showPhonemes);
+    wordPhonemeMap.phonemeSequencesForWord('ARK', showPhonemes);
 
     function showPhonemes(error, phonemeSequences) {
       if (error) {

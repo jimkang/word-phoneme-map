@@ -29,13 +29,14 @@ function createPhonemeIndexer(opts) {
     var q = queue();
 
     // Index by word.
-    var wordLevel = db.words.sublevel(word);
+    var cleanedWord = stripOrdinal(word);
+    var wordLevel = db.words.sublevel(cleanedWord);
     q.defer(wordLevel.put, phonemeString, JSON.stringify(phonemes));
 
     // Index by phoneme string.
     var phonemeLevel = db.phonemes.sublevel(phonemeString);
 
-    q.defer(phonemeLevel.put, word, word);
+    q.defer(phonemeLevel.put, cleanedWord, cleanedWord);
 
     q.awaitAll(done);
   }
@@ -46,9 +47,15 @@ function createPhonemeIndexer(opts) {
   };
 }
 
-
 function stringIsEmpty(s) {
   return (typeof s !== 'string' || s.length < 1);
 }
+
+var ordinalRegex = /\(\d\)/;
+
+function stripOrdinal(word) {
+  return word.replace(ordinalRegex, '');
+}
+
 
 module.exports = createPhonemeIndexer;

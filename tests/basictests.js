@@ -29,6 +29,13 @@ test('Create and use map', function typicalCase(t) {
         ['AE', 'B', 'N', 'AO', 'R', 'M', 'AH', 'L', 'IY']
       ],
       words: ['ABNORMALLY']
+    },
+    {
+      sequences: [
+        ['EY', 'B', 'AH', 'L', 'ER'],
+        ['EY', 'B', 'L', 'ER']
+      ],
+      words: ['ABLER']
     }
   ];
 
@@ -69,7 +76,7 @@ test('Create and use map', function typicalCase(t) {
     expectedWordsForSequences.forEach(runSequencesForWordsTest);
 
     function runSequencesForWordsTest(pair) {
-      wordPhonemeMap.phonemeSequenceForWord(pair.words[0], checkSequences);
+      wordPhonemeMap.phonemeSequencesForWord(pair.words[0], checkSequences);
 
       function checkSequences(error, sequences) {
         t.ok(!error, 'No error occured while looking for sequence.');

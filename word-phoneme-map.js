@@ -20,7 +20,7 @@ function createWordPhonemeMap(opts) {
     basicSubleveler.readAllValuesFromSublevel(seqLevel, done);
   }
 
-  function phonemeSequenceForWord(word, done) {
+  function phonemeSequencesForWord(word, done) {
     var wordLevel = db.words.sublevel(word);
     basicSubleveler.readAllValuesFromSublevel(wordLevel, parseSequenceJSON);
 
@@ -29,7 +29,7 @@ function createWordPhonemeMap(opts) {
     }
   }
 
-  return exportMethods(wordsForPhonemeSequence, phonemeSequenceForWord);
+  return exportMethods(wordsForPhonemeSequence, phonemeSequencesForWord);
 }
 
 module.exports = createWordPhonemeMap;
