@@ -104,3 +104,48 @@ test('Create and use map', function typicalCase(t) {
   }
   
 });
+
+test('Partial matching from end', function matchingFromEnd(t) {
+  var expectedWordsForSequences = [
+    {
+      sequence: ['AA', 'R', 'K'],
+      words: ['ARC', 'ARK']
+    },
+    {
+      sequence: ['AH', 'L', 'IY'],
+      words: ['ABNORMALLY']
+    },
+    {
+      sequence: ['L', 'ER'],
+      words: ['ABLER']
+    }
+  ];
+
+
+  t.plan(expectedWordsForSequences.length * 4 + 1);
+
+  setUpMiniIndex(testMap);
+
+  function testMap() {
+    var wordPhonemeMap = createWordPhonemeMap({
+      dbLocation: indexOpts.dbLocation
+    });
+
+    expectedWordsForSequences.forEach(runWordsForSequenceTest);
+
+    function runWordsForSequenceTest(pair) {
+      wordPhonemeMap.wordsForPhonemeEndSequence(pair.sequence, checkWords);
+
+      function checkWords(error, words) {
+        t.ok(!error, 'No error occured while looking for words.');
+        t.deepEqual(words, pair.words, 'Expected words are returned.');
+      }
+    }
+
+    wordPhonemeMap.close(checkClose);
+
+    function checkClose(error) {
+      t.ok(!error, 'Database closes successfully.');
+    }
+  }
+});
