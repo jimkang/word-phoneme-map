@@ -3,6 +3,23 @@ var indexWordsAndPhonemes = require('../index-words-and-phonemes');
 var createWordPhonemeMap = require('../word-phoneme-map');
 var fs = require('fs');
 var rimraf = require('rimraf');
+var callNextTick = require('call-next-tick');
+
+var indexOpts = {
+  dbLocation: __dirname + '/test.db',
+  numberOfLinesToIndex: 6000
+};
+
+rimraf.sync(indexOpts.dbLocation);
+
+function setUpMiniIndex(done) {
+  if (fs.existsSync(indexOpts.dbLocation)) {
+    callNextTick(done);
+  }
+  else {
+    indexWordsAndPhonemes(indexOpts, done);
+  }
+}
 
 test('Try map without db', function noDb(t) {
   t.plan(1);
@@ -40,16 +57,9 @@ test('Create and use map', function typicalCase(t) {
   ];
 
 
-  t.plan(2 + expectedWordsForSequences.length * 4);
+  t.plan(2 + expectedWordsForSequences.length * 4 + 1);
 
-  var indexOpts = {
-    dbLocation: __dirname + '/test.db',
-    numberOfLinesToIndex: 6000
-  };
-
-  rimraf.sync(indexOpts.dbLocation);
-
-  indexWordsAndPhonemes(indexOpts, checkDb);
+  setUpMiniIndex(checkDb);
 
   function checkDb(error) {
     t.ok(!error, 'No error occurred while indexing.');
@@ -75,6 +85,8 @@ test('Create and use map', function typicalCase(t) {
 
     expectedWordsForSequences.forEach(runSequencesForWordsTest);
 
+    wordPhonemeMap.close(checkClose);
+
     function runSequencesForWordsTest(pair) {
       wordPhonemeMap.phonemeSequencesForWord(pair.words[0], checkSequences);
 
@@ -85,8 +97,10 @@ test('Create and use map', function typicalCase(t) {
         );
       }
     }
-  }
 
+    function checkClose(error) {
+      t.ok(!error, 'Database closes successfully.');
+    }
+  }
   
 });
-

@@ -1,4 +1,3 @@
-var exportMethods = require('export-methods');
 var basicSubleveler = require('basic-subleveler');
 
 function createWordPhonemeMap(opts) {
@@ -20,6 +19,10 @@ function createWordPhonemeMap(opts) {
     basicSubleveler.readAllValuesFromSublevel(seqLevel, done);
   }
 
+  function wordsForPhonemeEndSequence(endSequence, done) {
+
+  }
+
   function phonemeSequencesForWord(word, done) {
     var wordLevel = db.words.sublevel(word);
     basicSubleveler.readAllValuesFromSublevel(wordLevel, parseSequenceJSON);
@@ -29,7 +32,12 @@ function createWordPhonemeMap(opts) {
     }
   }
 
-  return exportMethods(wordsForPhonemeSequence, phonemeSequencesForWord);
+  return {
+    wordsForPhonemeSequence: wordsForPhonemeSequence,
+    phonemeSequencesForWord: phonemeSequencesForWord,
+    wordsForPhonemeEndSequence: wordsForPhonemeEndSequence,
+    close: db.close
+  };
 }
 
 module.exports = createWordPhonemeMap;
