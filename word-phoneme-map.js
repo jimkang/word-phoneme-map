@@ -7,6 +7,7 @@ function createWordPhonemeMap(opts) {
 
   var db = basicSubleveler.setUpSubleveledDB({
     dbLocation: opts.dbLocation,
+    valueEncoding: 'json',
     sublevels: {
       words: 'w',
       phonemes: 'p'
@@ -25,11 +26,7 @@ function createWordPhonemeMap(opts) {
 
   function phonemeSequencesForWord(word, done) {
     var wordLevel = db.words.sublevel(word);
-    basicSubleveler.readAllValuesFromSublevel(wordLevel, parseSequenceJSON);
-
-    function parseSequenceJSON(error, valueStrings) {
-      done(error, valueStrings.map(JSON.parse));
-    }
+    basicSubleveler.readAllValuesFromSublevel(wordLevel, done);
   }
 
   return {

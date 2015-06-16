@@ -6,6 +6,7 @@ var callNextTick = require('call-next-tick');
 function createPhonemeIndexer(opts) {
    var db = basicSubleveler.setUpSubleveledDB({
     dbLocation: opts.dbLocation,
+    valueEncoding: 'json',
     sublevels: {
       words: 'w',
       phonemes: 'p'
@@ -31,7 +32,7 @@ function createPhonemeIndexer(opts) {
     // Index by word.
     var cleanedWord = stripOrdinal(word);
     var wordLevel = db.words.sublevel(cleanedWord);
-    q.defer(wordLevel.put, phonemeString, JSON.stringify(phonemes));
+    q.defer(wordLevel.put, phonemeString, phonemes);
 
     // Index by phoneme string.
     var phonemeLevel = db.phonemes.sublevel(phonemeString);
