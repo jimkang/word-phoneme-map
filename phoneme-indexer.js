@@ -1,17 +1,50 @@
 var queue = require('queue-async');
+var level = require('level');
 var basicSubleveler = require('basic-subleveler');
 var phonemeTypes = require('phoneme-types');
 var callNextTick = require('call-next-tick');
+var createLevelTree = require('basic-level-tree');
 
-function createPhonemeIndexer(opts) {
-   var db = basicSubleveler.setUpSubleveledDB({
-    dbLocation: opts.dbLocation,
-    valueEncoding: 'json',
+function createPhonemeIndexer(opts, done) {
+  var db = level(
+    opts.dbLocation,
+    {
+      valueEncoding: 'json'
+    }
+  );
+
+  var db = basicSubleveler.setUpSubleveledDB({
+    db: db,
     sublevels: {
       words: 'w',
       phonemes: 'p'
     }
   });
+
+  var reversePhonemesRoot;
+
+  var levelTree = createLevelTree(
+    {
+      db: db,
+      treeName: 'reverse-phonemes',
+      root: 'END'
+    },
+    passBackMethods
+  );
+
+  function passBackMethods(error, root) {
+    if (error) {
+      done(error);
+    }
+    else {
+      reversePhonemesRoot = root;
+      var indexerMethods = {
+        index: index,
+        closeDb: db.close.bind(db)
+      };
+      done(error, indexerMethods);
+    }
+  }
 
   function index(word, cmuDictPhonemeString, done) {
     var phonemeString = phonemeTypes.stripStressor(cmuDictPhonemeString);
@@ -41,11 +74,6 @@ function createPhonemeIndexer(opts) {
 
     q.awaitAll(done);
   }
-
-  return {
-    index: index,
-    closeDb: db.close
-  };
 }
 
 function stringIsEmpty(s) {

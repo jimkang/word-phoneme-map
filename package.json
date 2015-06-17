@@ -1,6 +1,6 @@
 {
   "name": "word-phoneme-map",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Provides a two-way map between the words and phonemes listed in the CMU Pronouncing Dictionary.",
   "main": "index.js",
   "scripts": {
@@ -25,9 +25,11 @@
     "tape": "^3.0.3"
   },
   "dependencies": {
-    "basic-subleveler": "^1.1.0",
+    "basic-level-tree": "^1.0.0",
+    "basic-subleveler": "^1.2.0",
     "call-next-tick": "^1.1.2",
     "export-methods": "^1.1.0",
+    "level": "^1.1.0",
     "phoneme-types": "^1.2.2",
     "queue-async": "^1.0.7",
     "split": "^1.0.0"

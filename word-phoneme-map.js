@@ -1,13 +1,20 @@
 var basicSubleveler = require('basic-subleveler');
+var level = require('level');
 
 function createWordPhonemeMap(opts) {
   if (!opts || !opts.dbLocation) {
     throw new Error('Cannot create wordPhonemeMap without dbLocation.');
   }
 
+  var db = level(
+    opts.dbLocation,
+    {
+      valueEncoding: 'json'
+    }
+  );
+
   var db = basicSubleveler.setUpSubleveledDB({
-    dbLocation: opts.dbLocation,
-    valueEncoding: 'json',
+    db: db,
     sublevels: {
       words: 'w',
       phonemes: 'p'
@@ -33,7 +40,7 @@ function createWordPhonemeMap(opts) {
     wordsForPhonemeSequence: wordsForPhonemeSequence,
     phonemeSequencesForWord: phonemeSequencesForWord,
     wordsForPhonemeEndSequence: wordsForPhonemeEndSequence,
-    close: db.close
+    close: db.close.bind(db)
   };
 }
 

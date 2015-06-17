@@ -6,66 +6,75 @@ var createPhonemeIndexer = require('./phoneme-indexer');
 var Writable = require('stream').Writable;
 
 function indexWordsAndPhonemes(opts, done) {
-  var indexer = createPhonemeIndexer({
-    dbLocation: opts.dbLocation
-  });
+  createPhonemeIndexer(
+    {
+      dbLocation: opts.dbLocation
+    },
+    startIndexing
+  );
 
-  var q = queue(4);
-  var linesIndexed = 0;
-  
-  var readStream = fs.createReadStream(__dirname + '/data/cmudict.0.7a');
-  var lineStream = split();
-  var indexStream = Writable({
-    objectMode: true
-  });
-  indexStream._write = writeChunkToIndex;
-
-  readStream.pipe(lineStream);
-  lineStream.pipe(indexStream);
-
-  lineStream.on('end', cleanUp);
-
-  function writeChunkToIndex(chunk, enc, callback) {
-    if (opts.numberOfLinesToIndex === undefined ||
-      linesIndexed < opts.numberOfLinesToIndex) {
-      
-      linesIndexed += 1;
-      indexLine(chunk, callback)
-    }
-    else {
-      callback();
-    }
-  }
-
-  function indexLine(line, indexDone) {
-    if (!line || line.indexOf(';;;') === 0) {
-      indexDone();
-      return;
-    }
-
-    var pieces = line.split('  ');
-    if (pieces.length < 2) {
-      indexDone();
-      return;
-    }
-
-    var word = pieces[0];
-    var phonemeString = pieces[1];
-
-    if (stringIsValid(word) && stringIsValid(phonemeString)) {
-      indexer.index(word, phonemeString, indexDone);
-    }
-    else {
-      // It is not an error if the line is not parseable.
-      callNextTick(indexDone);
-    }
-  }
-
-  function cleanUp(error) {
-    indexer.closeDb(passError);
-
-    function passError() {
+  function startIndexing(error, indexer) {
+    if (error) {
       done(error);
+      return;
+    }
+
+    var q = queue(4);
+    var linesIndexed = 0;
+    var readStream = fs.createReadStream(__dirname + '/data/cmudict.0.7a');
+    var lineStream = split();
+    var indexStream = Writable({
+      objectMode: true
+    });
+    indexStream._write = writeChunkToIndex;
+
+    readStream.pipe(lineStream);
+    lineStream.pipe(indexStream);
+
+    lineStream.on('end', cleanUp);
+
+    function writeChunkToIndex(chunk, enc, callback) {
+      if (opts.numberOfLinesToIndex === undefined ||
+        linesIndexed < opts.numberOfLinesToIndex) {
+
+        linesIndexed += 1;
+        indexLine(chunk, callback)
+      }
+      else {
+        callback();
+      }
+    }
+
+    function indexLine(line, indexDone) {
+      if (!line || line.indexOf(';;;') === 0) {
+        indexDone();
+        return;
+      }
+
+      var pieces = line.split('  ');
+      if (pieces.length < 2) {
+        indexDone();
+        return;
+      }
+
+      var word = pieces[0];
+      var phonemeString = pieces[1];
+
+      if (stringIsValid(word) && stringIsValid(phonemeString)) {
+        indexer.index(word, phonemeString, indexDone);
+      }
+      else {
+        // It is not an error if the line is not parseable.
+        callNextTick(indexDone);
+      }
+    }
+
+    function cleanUp(error) {
+      indexer.closeDb(passError);
+
+      function passError() {
+        done(error);
+      }
     }
   }
 }
