@@ -25,7 +25,7 @@
     "tape": "^3.0.3"
   },
   "dependencies": {
-    "basic-level-tree": "^1.0.0",
+    "basic-level-tree": "^1.1.0",
     "basic-subleveler": "^1.2.0",
     "call-next-tick": "^1.1.2",
     "export-methods": "^1.1.0",

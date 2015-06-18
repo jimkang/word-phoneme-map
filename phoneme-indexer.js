@@ -3,9 +3,10 @@ var level = require('level');
 var basicSubleveler = require('basic-subleveler');
 var phonemeTypes = require('phoneme-types');
 var callNextTick = require('call-next-tick');
-var createLevelTree = require('basic-level-tree');
+var createReversePhonemeIndexer = require('./reverse-phoneme-indexer');
 
 function createPhonemeIndexer(opts, done) {
+  var indexWordByReversePhonemes;
   var db = level(
     opts.dbLocation,
     {
@@ -21,23 +22,20 @@ function createPhonemeIndexer(opts, done) {
     }
   });
 
-  var reversePhonemesRoot;
-
-  var levelTree = createLevelTree(
+  createReversePhonemeIndexer(
     {
-      db: db,
-      treeName: 'reverse-phonemes',
-      root: 'END'
+      db: db
     },
     passBackMethods
   );
 
-  function passBackMethods(error, root) {
+  function passBackMethods(error, reverseIndexMethod) {
     if (error) {
       done(error);
     }
     else {
-      reversePhonemesRoot = root;
+      indexWordByReversePhonemes = reverseIndexMethod;
+
       var indexerMethods = {
         index: index,
         closeDb: db.close.bind(db)
@@ -72,8 +70,12 @@ function createPhonemeIndexer(opts, done) {
 
     q.defer(phonemeLevel.put, cleanedWord, cleanedWord);
 
+    // Reverse index.
+    q.defer(indexWordByReversePhonemes, cleanedWord, phonemes);
+
     q.awaitAll(done);
   }
+
 }
 
 function stringIsEmpty(s) {

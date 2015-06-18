@@ -121,7 +121,6 @@ test('Partial matching from end', function matchingFromEnd(t) {
     }
   ];
 
-
   t.plan(expectedWordsForSequences.length * 4 + 1);
 
   setUpMiniIndex(testMap);
