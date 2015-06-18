@@ -64,8 +64,7 @@ function createReversePhonemeIndexer(opts, createDone) {
           child.value.words = [];
         }
         child.value.words.push(word);
-        // TODO: Need a child.save() method.
-        done();
+        child.save(done);
       }
       else {
         mapToTree(child, word, phonemes.slice(1), done);
