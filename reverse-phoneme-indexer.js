@@ -18,7 +18,9 @@ function createReversePhonemeIndexer(opts, createDone) {
     {
       db: db,
       treeName: 'reverse-phonemes',
-      root: 'END'
+      root: {
+        name: 'END'
+      }
     },
     passBackMethod
   );
@@ -47,9 +49,9 @@ function createReversePhonemeIndexer(opts, createDone) {
       node.addChildIfNotThere(
         {
           value: {
-            phoneme: phonemes[0]
+            name: phonemes[0]
           },
-          equalityFn: nodeValuesAreEqual
+          equalityFn: nodeNamesAreEqual
         },
         updateChild
       );
@@ -75,8 +77,8 @@ function createReversePhonemeIndexer(opts, createDone) {
   return indexWordByReversePhonemes;
 }
 
-function nodeValuesAreEqual(a, b) {
-  return a.phoneme === b.phoneme;
+function nodeNamesAreEqual(a, b) {
+  return a.name === b.name;
 }
 
 module.exports = createReversePhonemeIndexer;
