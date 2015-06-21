@@ -1,6 +1,6 @@
 {
   "name": "word-phoneme-map",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Provides a two-way map between the words and phonemes listed in the CMU Pronouncing Dictionary.",
   "main": "index.js",
   "scripts": {

@@ -40,7 +40,12 @@ function createReversePhonemeMap(opts, createDone) {
       }
       else {
         var words = collectWordsFromSubtree(subtree);
-        done(error, words);
+        if (words) {
+          done(error, words);
+        }
+        else {
+          done(error);
+        }
       }
     }
   }
@@ -57,10 +62,14 @@ function createReversePhonemeMap(opts, createDone) {
     }
 
     function visitCurrentNode(node) {
-      if (node.value.words) {
-        collected = collected.concat(node.value.words);
+      if (node) {
+        if (node.value && node.value.words) {
+          collected = collected.concat(node.value.words);
+        }
+        if (node.children) {
+          nextNodes = nextNodes.concat(node.children);
+        }
       }
-      nextNodes = nextNodes.concat(node.children);
     }
     
     return collected;

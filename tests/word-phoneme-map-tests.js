@@ -86,6 +86,10 @@ var expectedWordsForSequences = [
   {
     sequence: ['L', 'ER'],
     words: ['AILOR', 'ALLER', 'ALLOR', 'ABLER', 'ADLER', 'AGLER', 'ABLER', 'AMBLER', 'ANDLER', 'ANGLER', 'AKSLER', 'AMSLER', 'ANTLER', 'ANNULAR', 'ALACHLOR', 'ALTSCHILLER', 'ALTSCHULER', 'ALTSHULER', 'ALVEOLAR', 'ANGULAR', 'ALTSCHULER', 'ALTSHULER', 'APPENZELLER']
+  },
+  {
+    sequence: ['AA', 'AA'],
+    words: []
   }
 ];
 
