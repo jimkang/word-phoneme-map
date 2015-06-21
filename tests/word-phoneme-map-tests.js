@@ -30,81 +30,93 @@ test('Create and use map', function fullPhonemeSequenceMatch(t) {
   ];
 
 
-  t.plan(expectedWordsForSequences.length * 4 + 1);
+  t.plan(expectedWordsForSequences.length * 4 + 2);
 
-  var wordPhonemeMap = createWordPhonemeMap({
-    dbLocation: dbLocation
-  });
+  createWordPhonemeMap(
+    {
+      dbLocation: dbLocation
+    },
+    useMap
+  );
 
-  expectedWordsForSequences.forEach(runWordsForSequenceTest);
+  function useMap(error, wordPhonemeMap) {
+    t.ok(!error, 'No error while creating map.');
 
-  function runWordsForSequenceTest(pair) {
-    wordPhonemeMap.wordsForPhonemeSequence(pair.sequences[0], checkWords);
+    expectedWordsForSequences.forEach(runWordsForSequenceTest);
 
-    function checkWords(error, words) {
-      t.ok(!error, 'No error occured while looking for words.');
-      t.deepEqual(words, pair.words, 'Expected words are returned.');
+    function runWordsForSequenceTest(pair) {
+      wordPhonemeMap.wordsForPhonemeSequence(pair.sequences[0], checkWords);
+
+      function checkWords(error, words) {
+        t.ok(!error, 'No error occured while looking for words.');
+        t.deepEqual(words, pair.words, 'Expected words are returned.');
+      }
     }
-  }
 
-  expectedWordsForSequences.forEach(runSequencesForWordsTest);
+    expectedWordsForSequences.forEach(runSequencesForWordsTest);
 
-  function runSequencesForWordsTest(pair) {
-    wordPhonemeMap.phonemeSequencesForWord(pair.words[0], checkSequences);
+    function runSequencesForWordsTest(pair) {
+      wordPhonemeMap.phonemeSequencesForWord(pair.words[0], checkSequences);
 
-    function checkSequences(error, sequences) {
-      t.ok(!error, 'No error occured while looking for sequence.');
-      t.deepEqual(
-        sequences, pair.sequences, 'Expected sequence is returned.'
-      );
+      function checkSequences(error, sequences) {
+        t.ok(!error, 'No error occured while looking for sequence.');
+        t.deepEqual(
+          sequences, pair.sequences, 'Expected sequence is returned.'
+        );
+      }
     }
-  }
 
-  wordPhonemeMap.close(checkClose);
+    wordPhonemeMap.close(checkClose);
+  }
 
   function checkClose(error) {
     t.ok(!error, 'Database closes successfully.');
   }
 });
 
-test('Partial matching from end', function matchingFromEnd(t) {
-  var expectedWordsForSequences = [
-    {
-      sequence: ['AA', 'R', 'K'],
-      words: ['ARC', 'ARK']
-    },
-    {
-      sequence: ['AH', 'L', 'IY'],
-      words: ['ABNORMALLY']
-    },
-    {
-      sequence: ['L', 'ER'],
-      words: ['ABLER']
+var expectedWordsForSequences = [
+  {
+    sequence: ['AA', 'R', 'K'],
+    words: ['ARC', 'ARK', 'AARDVARK', '?QUESTION-MARK']
+  },
+  {
+    sequence: ['AH', 'L', 'IY'],
+    words: ['ALLEE', 'AMALIE', 'ACTUALLY', 'ANOMALY', 'ACTUALLY', 'ANNUALLY', 'ANGRILY', 'ARTFULLY', 'ABYSMALLY', 'ADDITIONALLY', 'ABNORMALLY', 'ADDITIONALLY', 'ANECDOTALLY', 'ANECDOTALLY', 'ACCIDENTALLY', 'ARTIFICIALLY', 'ANENCEPHALY', 'ACCIDENTALLY', 'ARBITRARILY', 'AGRICULTURALLY', 'ARCHITECTURALLY', 'AGRICULTURALLY', 'ARCHITECTURALLY']
+  },
+  {
+    sequence: ['L', 'ER'],
+    words: ['AILOR', 'ALLER', 'ALLOR', 'ABLER', 'ADLER', 'AGLER', 'ABLER', 'AMBLER', 'ANDLER', 'ANGLER', 'AKSLER', 'AMSLER', 'ANTLER', 'ANNULAR', 'ALACHLOR', 'ALTSCHILLER', 'ALTSCHULER', 'ALTSHULER', 'ALVEOLAR', 'ANGULAR', 'ALTSCHULER', 'ALTSHULER', 'APPENZELLER']
+  }
+];
+
+expectedWordsForSequences.forEach(runReverseMatchTest);
+
+function runReverseMatchTest(pair) {
+  test('Partial matching from end', function matchingFromEnd(t) {
+    t.plan(4);
+
+    createWordPhonemeMap(
+      {
+        dbLocation: dbLocation
+      },
+      useMap
+    );
+
+    function useMap(error, wordPhonemeMap) {
+      t.ok(!error, 'No error while creating map.');
+      wordPhonemeMap.wordsForPhonemeEndSequence(pair.sequence, checkWords);
+
+      function checkWords(error, words) {
+        // console.log('words!', words);
+        t.ok(!error, 'No error occured while looking for words.');
+        t.deepEqual(words, pair.words, 'Expected words are returned.');
+
+        wordPhonemeMap.close(checkClose);
+      }
     }
-  ];
 
-  t.plan(expectedWordsForSequences.length * 2 + 1);
-
-  var wordPhonemeMap = createWordPhonemeMap({
-    dbLocation: dbLocation
+    function checkClose(error) {
+      t.ok(!error, 'Database closes successfully.');
+    }
   });
-
-  expectedWordsForSequences.forEach(runReverseMatchTest);
-
-  function runReverseMatchTest(pair) {
-    debugger;
-    wordPhonemeMap.wordsForPhonemeEndSequence(pair.sequence, checkWords);
-
-    function checkWords(error, words) {
-      console.log('words!', words);
-      t.ok(!error, 'No error occured while looking for words.');
-      t.deepEqual(words, pair.words, 'Expected words are returned.');
-    }
-  }
-
-  wordPhonemeMap.close(checkClose);
-
-  function checkClose(error) {
-    t.ok(!error, 'Database closes successfully.');
-  }
-});
+}

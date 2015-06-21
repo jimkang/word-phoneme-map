@@ -1,9 +1,11 @@
 var basicSubleveler = require('basic-subleveler');
 var level = require('level');
+var createReversePhonemeMap = require('./reverse-phoneme-map');
 
-function createWordPhonemeMap(opts) {
+function createWordPhonemeMap(opts, createDone) {
   if (!opts || !opts.dbLocation) {
-    throw new Error('Cannot create wordPhonemeMap without dbLocation.');
+    createDone(new Error('Cannot create wordPhonemeMap without dbLocation.'));
+    return;
   }
 
   var db = level(
@@ -21,27 +23,40 @@ function createWordPhonemeMap(opts) {
     }
   });
 
+  createReversePhonemeMap(
+    {
+      db: db
+    },
+    passBackMethods
+  );
+
+  function passBackMethods(error, wordsForPhonemeEndSequence) {
+    if (error) {
+      createDone(error);
+    }
+    else {
+      createDone(
+        error,
+        {
+          wordsForPhonemeSequence: wordsForPhonemeSequence,
+          phonemeSequencesForWord: phonemeSequencesForWord,
+          wordsForPhonemeEndSequence: wordsForPhonemeEndSequence,
+          close: db.close.bind(db)
+        }
+      );
+    }
+  }
+
   function wordsForPhonemeSequence(sequence, done) {
     var sequenceString = sequence.join('_');
     var seqLevel = db.phonemes.sublevel(sequenceString);
     basicSubleveler.readAllValuesFromSublevel(seqLevel, done);
   }
 
-  function wordsForPhonemeEndSequence(endSequence, done) {
-
-  }
-
   function phonemeSequencesForWord(word, done) {
     var wordLevel = db.words.sublevel(word);
     basicSubleveler.readAllValuesFromSublevel(wordLevel, done);
   }
-
-  return {
-    wordsForPhonemeSequence: wordsForPhonemeSequence,
-    phonemeSequencesForWord: phonemeSequencesForWord,
-    wordsForPhonemeEndSequence: wordsForPhonemeEndSequence,
-    close: db.close.bind(db)
-  };
 }
 
 module.exports = createWordPhonemeMap;
