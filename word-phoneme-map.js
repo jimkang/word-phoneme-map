@@ -1,6 +1,8 @@
 var basicSubleveler = require('basic-subleveler');
 var level = require('level');
 var createReversePhonemeMap = require('./reverse-phoneme-map');
+var createForwardPhonemeMap = require('./forward-phoneme-map');
+var queue = require('queue-async');
 
 function createWordPhonemeMap(opts, createDone) {
   if (!opts || !opts.dbLocation) {
@@ -23,14 +25,18 @@ function createWordPhonemeMap(opts, createDone) {
     }
   });
 
-  createReversePhonemeMap(
-    {
-      db: db
-    },
-    passBackMethods
-  );
+  var mapOpts = {
+    db: db
+  };
 
-  function passBackMethods(error, wordsForPhonemeEndSequence) {
+  var q = queue();
+  q.defer(createReversePhonemeMap, mapOpts);
+  q.defer(createForwardPhonemeMap, mapOpts);
+  q.await(passBackMethods);
+
+  function passBackMethods(
+    error, wordsForPhonemeEndSequence, wordsForPhonemeStartSequence) {
+
     if (error) {
       createDone(error);
     }
@@ -41,6 +47,7 @@ function createWordPhonemeMap(opts, createDone) {
           wordsForPhonemeSequence: wordsForPhonemeSequence,
           phonemeSequencesForWord: phonemeSequencesForWord,
           wordsForPhonemeEndSequence: wordsForPhonemeEndSequence,
+          wordsForPhonemeStartSequence: wordsForPhonemeStartSequence,
           close: db.close.bind(db)
         }
       );

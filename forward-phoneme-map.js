@@ -1,7 +1,7 @@
 var createLevelTree = require('basic-level-tree');
 var collectWordsFromPhonemeSubtree = require('./collect-words-from-phoneme-subtree');
 
-function createReversePhonemeMap(opts, createDone) {
+function createForwardPhonemeMap(opts, createDone) {
   var db;
   var root;
 
@@ -10,14 +10,14 @@ function createReversePhonemeMap(opts, createDone) {
   }
 
   if (!db) {
-    createDone(new Error('Cannot create reverse phonemes map without db.'));
+    createDone(new Error('Cannot create forward phonemes map without db.'));
     return;
   }
 
   var levelTree = createLevelTree(
     {
       db: db,
-      treeName: 'reverse-phonemes'
+      treeName: 'forward-phonemes'
     },
     passBackMethod
   );
@@ -28,12 +28,12 @@ function createReversePhonemeMap(opts, createDone) {
     }
     else {
       root = levelTreeRoot;
-      createDone(error, wordsForPhonemeEndSequence);
+      createDone(error, wordsForPhonemeStartSequence);
     }
   }
 
-  function wordsForPhonemeEndSequence(phonemesInOrder, done) {
-    root.getSubtreeAtPath(phonemesInOrder.slice().reverse(), gatherWords);
+  function wordsForPhonemeStartSequence(phonemesInOrder, done) {
+    root.getSubtreeAtPath(phonemesInOrder, gatherWords);
 
     function gatherWords(error, subtree) {
       if (error) {
@@ -49,7 +49,7 @@ function createReversePhonemeMap(opts, createDone) {
         }
       }
     }
-  }
+  } 
 }
 
-module.exports = createReversePhonemeMap;
+module.exports = createForwardPhonemeMap;

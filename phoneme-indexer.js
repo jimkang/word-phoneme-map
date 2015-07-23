@@ -4,9 +4,13 @@ var basicSubleveler = require('basic-subleveler');
 var phonemeTypes = require('phoneme-types');
 var callNextTick = require('call-next-tick');
 var createReversePhonemeIndexer = require('./reverse-phoneme-indexer');
+var createForwardPhonemeIndexer = require('./forward-phoneme-indexer')
+var queue = require('queue-async');
 
 function createPhonemeIndexer(opts, done) {
   var indexWordByReversePhonemes;
+  var indexWordByForwardPhonemes;
+
   var db = level(
     opts.dbLocation,
     {
@@ -22,19 +26,22 @@ function createPhonemeIndexer(opts, done) {
     }
   });
 
-  createReversePhonemeIndexer(
-    {
-      db: db
-    },
-    passBackMethods
-  );
+  var specialIndexerOpts = {
+    db: db
+  };
 
-  function passBackMethods(error, reverseIndexMethod) {
+  var specialIndexerQueue = queue();
+  specialIndexerQueue.defer(createReversePhonemeIndexer, specialIndexerOpts);
+  specialIndexerQueue.defer(createForwardPhonemeIndexer, specialIndexerOpts);
+  specialIndexerQueue.await(passBackMethods);
+
+  function passBackMethods(error, reverseIndexMethod, forwardIndexMethod) {
     if (error) {
       done(error);
     }
     else {
       indexWordByReversePhonemes = reverseIndexMethod;
+      indexWordByForwardPhonemes = forwardIndexMethod;
 
       var indexerMethods = {
         index: index,
@@ -72,10 +79,11 @@ function createPhonemeIndexer(opts, done) {
 
     // Reverse index.
     q.defer(indexWordByReversePhonemes, cleanedWord, phonemes);
+    // Forward index.
+    q.defer(indexWordByForwardPhonemes, cleanedWord, phonemes);
 
     q.awaitAll(done);
   }
-
 }
 
 function stringIsEmpty(s) {

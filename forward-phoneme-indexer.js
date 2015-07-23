@@ -1,7 +1,7 @@
 var createLevelTree = require('basic-level-tree');
 var callNextTick = require('call-next-tick');
 
-function createReversePhonemeIndexer(opts, createDone) {
+function createForwardPhonemeIndexer(opts, createDone) {
   var db;
   var root;
 
@@ -10,16 +10,16 @@ function createReversePhonemeIndexer(opts, createDone) {
   }
 
   if (!db) {
-    createDone(new Error('Cannot create reverse indexer without db.'));
+    createDone(new Error('Cannot create forward indexer without db.'));
     return;
   }
 
   var levelTree = createLevelTree(
     {
       db: db,
-      treeName: 'reverse-phonemes',
+      treeName: 'forward-phonemes',
       root: {
-        name: 'END'
+        name: 'START'
       }
     },
     passBackMethod
@@ -31,12 +31,12 @@ function createReversePhonemeIndexer(opts, createDone) {
     }
     else {
       root = levelTreeRoot;
-      createDone(error, indexWordByReversePhonemes);
+      createDone(error, indexWordByForwardPhonemes);
     }
   }
 
-  function indexWordByReversePhonemes(word, phonemesInOrder, done) {
-    mapToTree(root, word, phonemesInOrder.slice().reverse(), done);
+  function indexWordByForwardPhonemes(word, phonemesInOrder, done) {
+    mapToTree(root, word, phonemesInOrder, done);
   }
 
   // Maps the phonemes to the tree, using one node for each phoneme. When it 
@@ -74,11 +74,11 @@ function createReversePhonemeIndexer(opts, createDone) {
     }
   }
 
-  return indexWordByReversePhonemes;
+  return indexWordByForwardPhonemes;
 }
 
 function nodeNamesAreEqual(a, b) {
   return a.name === b.name;
 }
 
-module.exports = createReversePhonemeIndexer;
+module.exports = createForwardPhonemeIndexer;
